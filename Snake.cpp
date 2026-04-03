@@ -117,11 +117,49 @@ Point TaoThucAn(ConRan &ran, Point moiKhac = {-1, -1})
     return thucAn;
 }
 
+// Đụng tường -> game over
+bool checkWallCollision(CONRAN &r) {
+    int x = r.A[0].x;
+    int y = r.A[0].y;
+
+    if (x < 0 || x >= WIDTH || y < 0 || y >= HEIGHT) {
+        return true; // thua
+    }
+    return false;
+}
+
+// Lưu lại kỷ lục
+int loadHighScore() {
+    FILE *f = fopen("highscore.txt", "r");
+    int score = 0;
+
+    if (f != NULL) {
+        fscanf(f, "%d", &score);
+        fclose(f);
+    }
+
+    return score;
+}
+// Lưu lại kỷ lục
+void saveHighScore(int score) {
+    FILE *f = fopen("highscore.txt", "w");
+
+    if (f != NULL) {
+        fprintf(f, "%d", score);
+        fclose(f);
+    }
+}
+
 int main()
 {
     CONRAN r;
     int Huong = 0;
     char t;
+
+    int score = 0;
+    int highScore = loadHighScore();
+    bool gameOver = false;
+
 
     while (1)
     {
@@ -140,6 +178,11 @@ int main()
         system("cls");
         r.Ve();
         r.DiChuyen(Huong);
+
+        // check thua
+        if (checkWallCollision(r)) gameOver = true;
+        if (r.DauChamThan()) gameOver = true;
+
         Sleep(300);
     }
 
