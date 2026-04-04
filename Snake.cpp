@@ -1,7 +1,9 @@
 #include <iostream>
 #include <windows.h>
 #include <cstdlib>
+#include <cstdio>
 #include <conio.h>
+#include <ctime>
 using namespace std;
 
 // Kích thước cố định của màn hình chơi
@@ -91,19 +93,19 @@ public:
 };
 
 // Tạo thức ăn.
-Point TaoThucAn(ConRan &ran, Point moiKhac = {-1, -1})
+Point TaoThucAn(CONRAN &r, Point moiKhac = {-1, -1})
 {
     Point thucAn;
     bool viTriHopLe;
     do
     {
         viTriHopLe = true;
-        thucAn.x = 1 + rand() % (CHIEU_RONG - 2);
-        thucAn.y = 1 + rand() % (CHIEU_CAO - 2);
+        thucAn.x = 1 + rand() % (WIDTH - 2);
+        thucAn.y = 1 + rand() % (HEIGHT - 2);
 
-        for (int i = 0; i < ran.ChieuDai; i++)
+        for (int i = 0; i < r.DoDai; i++)
         {
-            if (ran.ThanRan[i].x == thucAn.x && ran.ThanRan[i].y == thucAn.y)
+            if (r.A[i].x == thucAn.x && r.A[i].y == thucAn.y)
             {
                 viTriHopLe = false;
                 break;
@@ -118,22 +120,27 @@ Point TaoThucAn(ConRan &ran, Point moiKhac = {-1, -1})
 }
 
 // Đụng tường -> game over
-bool checkWallCollision(CONRAN &r) {
+bool checkWallCollision(CONRAN &r)
+{
     int x = r.A[0].x;
     int y = r.A[0].y;
 
-    if (x < 0 || x >= WIDTH - 1 || y <= 0 || y >= HEIGHT - 1) {
+    // Khu vực hợp lệ là 1..WIDTH-2 và 1..HEIGHT-2, nên va chạm xảy ra khi nằm trên biên (0 hoặc WIDTH-1 / 0 hoặc HEIGHT-1)
+    if (x <= 0 || x >= WIDTH - 1 || y <= 0 || y >= HEIGHT - 1)
+    {
         return true; // thua
     }
     return false;
 }
 
 // Lưu lại kỷ lục
-int loadHighScore() {
+int loadHighScore()
+{
     FILE *f = fopen("highscore.txt", "r");
     int score = 0;
 
-    if (f != NULL) {
+    if (f != NULL)
+    {
         fscanf(f, "%d", &score);
         fclose(f);
     }
@@ -141,20 +148,24 @@ int loadHighScore() {
     return score;
 }
 // Lưu lại kỷ lục
-void saveHighScore(int score) {
+void saveHighScore(int score)
+{
     FILE *f = fopen("highscore.txt", "w");
 
-    if (f != NULL) {
+    if (f != NULL)
+    {
         fprintf(f, "%d", score);
         fclose(f);
     }
 }
 
 // Vẽ khung cho trò chơi
-void VeKhung() {
-    
+void VeKhung()
+{
+
     // viền trên + dưới
-    for (int x = 0; x < WIDTH; x++) {
+    for (int x = 0; x < WIDTH; x++)
+    {
         gotoxy(x, 0);
         cout << "#";
 
@@ -163,7 +174,8 @@ void VeKhung() {
     }
 
     // viền trái + phải
-    for (int y = 0; y < HEIGHT; y++) {
+    for (int y = 0; y < HEIGHT; y++)
+    {
         gotoxy(0, y);
         cout << "#";
 
@@ -182,31 +194,118 @@ int main()
     int highScore = loadHighScore();
     bool gameOver = false;
 
+    // Khởi tạo seed cho rand()
+    srand((unsigned)time(NULL));
+
+    Point thucAn = TaoThucAn(r);
+    Point moiDacBiet = {-1, -1};
+    bool coMoiDacBiet = false;
+    int thoiGianMoiDacBiet = 0;
+    int soMoiThuongDaAn = 0; // Biến đếm số mồi thường đã ăn
+
+    // Vẽ khung ban đầu và rắn, thức ăn để người chơi chuẩn bị
+    system("cls");
+    VeKhung();
+    r.Ve();
+    gotoxy(thucAn.x, thucAn.y);
+    cout << "#";
 
     while (1)
     {
-        if (kbhit())
+        if (_kbhit())
         {
-            t = getch();
+            t = _getch();
+            int newHuong = Huong;
             if (t == 'a')
-                Huong = 2;
+                newHuong = 2; // trai
             if (t == 'w')
-                Huong = 3;
+                newHuong = 3; // len
             if (t == 'd')
-                Huong = 0;
-            if (t == 'x')
-                Huong = 1;
+                newHuong = 0; // phai
+            if (t == 's')
+                newHuong = 1; // xuong
+
+            // Ngăn chặn đổi chiều 180 độ ngay lập tức
+            bool opposite = (Huong == 0 && newHuong == 2) || (Huong == 2 && newHuong == 0) || (Huong == 1 && newHuong == 3) || (Huong == 3 && newHuong == 1);
+            if (!opposite)
+                Huong = newHuong;
         }
+
+        int tiepTheoX = r.A[0].x;
+        int tiepTheoY = r.A[0].y;
+        if (Huong == 0)
+            tiepTheoX++;
+        if (Huong == 1)
+            tiepTheoY++;
+        if (Huong == 2)
+            tiepTheoX--;
+        if (Huong == 3)
+            tiepTheoY--;
+        bool daAnMoi = false;
+
+        // KIỂM TRA ĂN MỒI BÌNH THƯỜNG
+        if (tiepTheoX == thucAn.x && tiepTheoY == thucAn.y)
+        {
+            score += 1;
+            r.MocDai();
+            thucAn = TaoThucAn(r, moiDacBiet);
+
+            soMoiThuongDaAn++; //  Cứ ăn 1 mồi thường thì cộng biến đếm lên 1
+        }
+
+        // KIỂM TRA ĂN MỒI ĐẶC BIỆT
+        if (coMoiDacBiet && tiepTheoX == moiDacBiet.x && tiepTheoY == moiDacBiet.y)
+        {
+            score += 5; // Mồi đặc biệt cho nhiều điểm hơn
+            r.MocDai();
+            daAnMoi = true;
+            coMoiDacBiet = false;
+            gotoxy(moiDacBiet.x, moiDacBiet.y);
+            cout << " ";
+        }
+
+        // KIỂM TRA ĐIỀU KIỆN ĐỂ SINH MỒI ĐẶC BIỆT (thay vì random như cũ)
+        if (!coMoiDacBiet && soMoiThuongDaAn >= 5) // Nếu đã ăn đủ 5 mồi thường
+        {
+            moiDacBiet = TaoThucAn(r, thucAn);
+            coMoiDacBiet = true;
+            thoiGianMoiDacBiet = 50;
+
+            soMoiThuongDaAn = 0; // Đặt lại đếm về 0 để tính cho vòng 5 con tiếp theo
+        }
+
+        if (coMoiDacBiet)
+        {
+            thoiGianMoiDacBiet--;
+            if (thoiGianMoiDacBiet <= 0)
+            {
+                coMoiDacBiet = false;
+                gotoxy(moiDacBiet.x, moiDacBiet.y);
+                cout << " ";
+            }
+        }
+
         system("cls");
 
-        VeKhung(); //Vẽ khung
+        VeKhung(); // Vẽ khung
 
-        r.Ve();
         r.DiChuyen(Huong);
+        r.Ve();
+
+        gotoxy(thucAn.x, thucAn.y);
+        cout << "#"; // Vẽ mồi thường
+
+        if (coMoiDacBiet)
+        {
+            gotoxy(moiDacBiet.x, moiDacBiet.y);
+            cout << "$"; // Vẽ mồi đặc biệt
+        }
 
         // check thua
-        if (checkWallCollision(r)) gameOver = true;
-        if (r.DauChamThan()) gameOver = true;
+        if (checkWallCollision(r))
+            gameOver = true;
+        if (r.DauChamThan())
+            gameOver = true;
 
         Sleep(300);
     }
