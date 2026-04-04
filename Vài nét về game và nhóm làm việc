@@ -1,0 +1,20 @@
+Nhóm sinh viên thực hiện bài SS004.9 của lớp SS004.Q27
+
+1. Nguyễn An Bình - MSSV: 25520176
+2. Đỗ Tuấn Đạt - MSSV: 25520263
+3. Tống Mai Xuân Thịnh - MSSV: 25521782
+
+Game Snake nhóm em gồm các tính năng như:
+1. Ăn mồi -> dài thân ra
+2. Khung trò chơi giới hạn
+3. Điều kiện dừng game: Cắn thân hoặc đâm vào tường
+4. Tăng tốc độ chơi khi ăn nhiều mồi hơn
+5. Có xuất hiện của mồi đặc biệt trong 7 giây khi ăn đủ 5 mồi thường mỗi lượt, ăn sớm điểm càng cao
+6. Có lưu kỷ lục
+7. Có hướng dẫn cách chơi
+8. Có thể chơi lại khi thua
+
+
+* Nhóm em còn mắc nhiều sai sót về thao tác làm việc nhóm như chỉnh sửa thẳng vào hàm main nhưng không chia 
+  ra các nhánh rồi merge lại hay merge ngược từ main vào nhánh.
+* Nhóm đã nhận ra và làm theo hướng đúng sau đó và rút kinh nghiệm sâu sắc, rất mong được thầy thông cảm. Cảm ơn thầy đã đọc.
