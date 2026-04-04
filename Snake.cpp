@@ -299,6 +299,17 @@ int main()
         {
             gotoxy(moiDacBiet.x, moiDacBiet.y);
             cout << "$"; // Vẽ mồi đặc biệt
+            // Hiển thị đồng hồ đếm ngược mồi đặc biệt (đơn vị giây) ở trên màn hình
+            int giayCon = (thoiGianMoiDacBiet + 999) / 1000;
+            if (giayCon < 0) giayCon = 0;
+            gotoxy(WIDTH - 10, 1);
+            cout << "TG:" << giayCon << "s ";
+        }
+        else
+        {
+            // Xóa vùng hiển thị đồng hồ nếu không có mồi đặc biệt.
+            gotoxy(WIDTH - 10, 1);
+            cout << "     ";
         }
 
         // check thua
