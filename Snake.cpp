@@ -9,15 +9,11 @@ using namespace std;
 // Kích thước cố định của màn hình chơi
 const int WIDTH = 40;
 const int HEIGHT = 20;
-const int TG = 300; // thời gian mỗi khung (ms)
-const int TG_MOI = 7000; // mồi đặc biệt tồn tại 7 giây (ms)
-const int DM_MAX = 10; // điểm tối đa mồi đặc biệt
-const int DM_MIN = 5;  // điểm tối thiểu mồi đặc biệt
 
 // TÍNH NĂNG ĐỒ HỌA: Di chuyển con trỏ vẽ đến vị trí (x, y)
 void gotoxy(int column, int line)
 {
-    COORD coord = { (SHORT)column, (SHORT)line };
+    COORD coord = {(SHORT)column, (SHORT)line};
     SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
 }
 
@@ -97,7 +93,7 @@ public:
 };
 
 // Tạo thức ăn.
-Point TaoThucAn(CONRAN& r, Point moiKhac = { -1, -1 })
+Point TaoThucAn(CONRAN &r, Point moiKhac = {-1, -1})
 {
     Point thucAn;
     bool viTriHopLe;
@@ -124,7 +120,7 @@ Point TaoThucAn(CONRAN& r, Point moiKhac = { -1, -1 })
 }
 
 // Đụng tường -> game over
-bool checkWallCollision(CONRAN& r)
+bool checkWallCollision(CONRAN &r)
 {
     int x = r.A[0].x;
     int y = r.A[0].y;
@@ -140,13 +136,12 @@ bool checkWallCollision(CONRAN& r)
 // Lưu lại kỷ lục
 int loadHighScore()
 {
-    FILE* f = NULL;
-    fopen_s(&f, "highscore.txt", "r");
+    FILE *f = fopen("highscore.txt", "r");
     int score = 0;
 
     if (f != NULL)
     {
-        fscanf_s(f, "%d", &score);
+        fscanf(f, "%d", &score);
         fclose(f);
     }
 
@@ -155,12 +150,11 @@ int loadHighScore()
 // Lưu lại kỷ lục
 void saveHighScore(int score)
 {
-    FILE* f = NULL;
-    fopen_s(&f, "highscore.txt", "w");
+    FILE *f = fopen("highscore.txt", "w");
 
     if (f != NULL)
     {
-        fprintf_s(f, "%d", score);
+        fprintf(f, "%d", score);
         fclose(f);
     }
 }
@@ -168,6 +162,7 @@ void saveHighScore(int score)
 // Vẽ khung cho trò chơi
 void VeKhung()
 {
+
     // viền trên + dưới
     for (int x = 0; x < WIDTH; x++)
     {
@@ -192,8 +187,7 @@ void VeKhung()
 int main()
 {
     CONRAN r;
-    // Khởi đầu di chuyển sang trái để không đâm vào thân (mảng A khởi tạo đầu ở trái, thân nằm về bên phải)
-    int Huong = 2;
+    int Huong = 2; // Thay đổi hướng của con rắn
     char t;
 
     int score = 0;
@@ -204,7 +198,7 @@ int main()
     srand((unsigned)time(NULL));
 
     Point thucAn = TaoThucAn(r);
-    Point moiDacBiet = { -1, -1 };
+    Point moiDacBiet = {-1, -1};
     bool coMoiDacBiet = false;
     int thoiGianMoiDacBiet = 0;
     int soMoiThuongDaAn = 0; // Biến đếm số mồi thường đã ăn
@@ -229,11 +223,10 @@ int main()
             if (t == 'd')
                 newHuong = 0; // phai
             if (t == 's')
-                newHuong = 1; // xuong 
+                newHuong = 1; // xuong
 
             // Ngăn chặn đổi chiều 180 độ ngay lập tức
-            bool opposite = (Huong == 0 && newHuong == 2) || (Huong == 2 && newHuong == 0)
-                            || (Huong == 1 && newHuong == 3) || (Huong == 3 && newHuong == 1);
+            bool opposite = (Huong == 0 && newHuong == 2) || (Huong == 2 && newHuong == 0) || (Huong == 1 && newHuong == 3) || (Huong == 3 && newHuong == 1);
             if (!opposite)
                 Huong = newHuong;
         }
@@ -260,17 +253,10 @@ int main()
             soMoiThuongDaAn++; //  Cứ ăn 1 mồi thường thì cộng biến đếm lên 1
         }
 
-        // KIỂM TRA ĂN MỒI ĐẶC BIỆT (tính điểm dựa trên thời gian còn lại)
+        // KIỂM TRA ĂN MỒI ĐẶC BIỆT
         if (coMoiDacBiet && tiepTheoX == moiDacBiet.x && tiepTheoY == moiDacBiet.y)
         {
-            int thoiCon = thoiGianMoiDacBiet;
-            if (thoiCon < 0) thoiCon = 0;
-            if (thoiCon > TG_MOI) thoiCon = TG_MOI;
-            int them = DM_MIN + ((DM_MAX - DM_MIN) * thoiCon) / TG_MOI;
-            if (them < DM_MIN) them = DM_MIN;
-            if (them > DM_MAX) them = DM_MAX;
-
-            score += them; // điểm tùy theo thời gian ăn
+            score += 5; // Mồi đặc biệt cho nhiều điểm hơn
             r.MocDai();
             daAnMoi = true;
             coMoiDacBiet = false;
@@ -283,14 +269,14 @@ int main()
         {
             moiDacBiet = TaoThucAn(r, thucAn);
             coMoiDacBiet = true;
-            thoiGianMoiDacBiet = TG_MOI; // 7 giây
+            thoiGianMoiDacBiet = 50;
 
             soMoiThuongDaAn = 0; // Đặt lại đếm về 0 để tính cho vòng 5 con tiếp theo
         }
 
         if (coMoiDacBiet)
         {
-            thoiGianMoiDacBiet -= TG;
+            thoiGianMoiDacBiet--;
             if (thoiGianMoiDacBiet <= 0)
             {
                 coMoiDacBiet = false;
@@ -303,28 +289,16 @@ int main()
 
         VeKhung(); // Vẽ khung
 
-        // Di chuyển trước khi vẽ để tránh vẽ vị trí cũ
         r.DiChuyen(Huong);
         r.Ve();
 
         gotoxy(thucAn.x, thucAn.y);
-        cout << "@"; // Vẽ mồi thường
+        cout << "#"; // Vẽ mồi thường
 
         if (coMoiDacBiet)
         {
             gotoxy(moiDacBiet.x, moiDacBiet.y);
             cout << "$"; // Vẽ mồi đặc biệt
-            // Hiển thị đồng hồ đếm ngược mồi đặc biệt (đơn vị giây) ở trên màn hình
-            int giayCon = (thoiGianMoiDacBiet + 999) / 1000;
-            if (giayCon < 0) giayCon = 0;
-            gotoxy(WIDTH - 10, 1);
-            cout << "TG:" << giayCon << "s ";
-        }
-        else
-        {
-            // Xóa vùng hiển thị đồng hồ nếu không có mồi đặc biệt
-            gotoxy(WIDTH - 10, 1);
-            cout << "     ";
         }
 
         // check thua
@@ -333,20 +307,22 @@ int main()
         if (r.DauChamThan())
             gameOver = true;
 
-        if (gameOver)
-        {
-            if (score > highScore)
-                saveHighScore(score);
+        Sleep(300);
+// Thêm vào tính năng khi rắn đụng tường và cắn bản thân
+// Khi đụng 1 trong 2 thì sẽ xuất hiện "GAME OVER"
+    if (gameOver)
+     {
+         if (score > highScore)
+             saveHighScore(score);
 
-            gotoxy(WIDTH / 2 - 5, HEIGHT / 2);
-            cout << "Game Over";
-            gotoxy(WIDTH / 2 - 5, HEIGHT / 2 + 1);
-            cout << "Score:" << score;
-            Sleep(2000);
-            break;
-        }
-
-        Sleep(TG);
+         gotoxy(WIDTH / 2 - 5, HEIGHT / 2);
+         cout << "Game Over";
+         gotoxy(WIDTH / 2 - 5, HEIGHT / 2 + 1);
+         cout << "Score:" << score;
+         Sleep(2000);
+         break;
+     }
+        
     }
 
     return 0;
