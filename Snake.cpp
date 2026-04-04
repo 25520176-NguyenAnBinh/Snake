@@ -17,7 +17,7 @@ const int DM_MIN = 5;  // điểm tối thiểu mồi đặc biệt
 // TÍNH NĂNG ĐỒ HỌA: Di chuyển con trỏ vẽ đến vị trí (x, y)
 void gotoxy(int column, int line)
 {
-    COORD coord = { (SHORT)column, (SHORT)line };
+    COORD coord = {(SHORT)column, (SHORT)line};
     SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
 }
 
@@ -97,7 +97,7 @@ public:
 };
 
 // Tạo thức ăn.
-Point TaoThucAn(CONRAN& r, Point moiKhac = { -1, -1 })
+Point TaoThucAn(CONRAN &r, Point moiKhac = {-1, -1})
 {
     Point thucAn;
     bool viTriHopLe;
@@ -190,12 +190,42 @@ void VeKhung()
     }
 }
 
+// Hướng dẫn chơi game
+void HuongDanChoi() {
+    cout << "=============================\n";
+    cout << "        SNAKE GAME\n";
+    cout << "=============================\n\n";
+
+    cout << "Huong dan choi:\n";
+    cout << "- Dieu khien ran bang cac phim:\n";
+    cout << "  W: Len\n";
+    cout << "  S: Xuong\n";
+    cout << "  A: Trai\n";
+    cout << "  D: Phai\n\n";
+
+    cout << "- An thuc an de tang diem.\n";
+    cout << "- Moi lan an, ran se dai ra.\n";
+    cout <<"- Se co cac thuc an dac biet va co thoi gian bien mat. \n";
+    cout << "- Khong duoc dam vao tuong.\n";
+    cout << "- Khong duoc tu can vao than minh.\n\n";
+
+    cout << "Game se ket thuc khi ban dam vao tuong hoac can chinh ban than.\n\n";
+    cout << "Chuc ban choi game vui ve!\n\n";
+
+    cout << "Nhan ENTER de bat dau game...";
+    cin.get();      // chờ nhấn Enter
+    cin.ignore();   // clear buffer (phòng trường hợp lỗi)
+    cout << "=============================\n";
+}
+
 int main()
 {
     CONRAN r;
-    // Khởi đầu di chuyển sang trái để không đâm vào thân (mảng A khởi tạo đầu ở trái, thân nằm về bên phải)
-    int Huong = 2;
+    int Huong = 2; // Thay đổi hướng của rắn
     char t;
+
+    HuongDanChoi();
+    cout << "Game bat dau:";
 
     int score = 0;
     int highScore = loadHighScore();
@@ -205,7 +235,7 @@ int main()
     srand((unsigned)time(NULL));
 
     Point thucAn = TaoThucAn(r);
-    Point moiDacBiet = { -1, -1 };
+    Point moiDacBiet = {-1, -1};
     bool coMoiDacBiet = false;
     int thoiGianMoiDacBiet = 0;
     int soMoiThuongDaAn = 0; // Biến đếm số mồi thường đã ăn
@@ -230,11 +260,10 @@ int main()
             if (t == 'd')
                 newHuong = 0; // phai
             if (t == 's')
-                newHuong = 1; // xuong 
+                newHuong = 1; // xuong
 
             // Ngăn chặn đổi chiều 180 độ ngay lập tức
-            bool opposite = (Huong == 0 && newHuong == 2) || (Huong == 2 && newHuong == 0)
-                            || (Huong == 1 && newHuong == 3) || (Huong == 3 && newHuong == 1);
+            bool opposite = (Huong == 0 && newHuong == 2) || (Huong == 2 && newHuong == 0) || (Huong == 1 && newHuong == 3) || (Huong == 3 && newHuong == 1);
             if (!opposite)
                 Huong = newHuong;
         }
@@ -323,11 +352,7 @@ int main()
         }
         else
         {
-<<<<<<< HEAD
-            // Xóa vùng hiển thị đồng hồ nếu không có mồi đặc biệt..
-=======
             // Xóa vùng hiển thị đồng hồ nếu không có mồi đặc biệt
->>>>>>> 30c8154bdf0d57f4759c51e5799ec56f1d54b86b
             gotoxy(WIDTH - 10, 1);
             cout << "     ";
         }
@@ -337,21 +362,23 @@ int main()
             gameOver = true;
         if (r.DauChamThan())
             gameOver = true;
+            Sleep(300);
 
-        if (gameOver)
-        {
-            if (score > highScore)
-                saveHighScore(score);
+    // làm cho răn đụng tường và đụng thân
+    // Khi đụng sẽ xuất hiện "GAME OVER"
+    if (gameOver)
+     {
+         if (score > highScore)
+             saveHighScore(score);
 
-            gotoxy(WIDTH / 2 - 5, HEIGHT / 2);
-            cout << "Game Over";
-            gotoxy(WIDTH / 2 - 5, HEIGHT / 2 + 1);
-            cout << "Score:" << score;
-            Sleep(2000);
-            break;
-        }
+         gotoxy(WIDTH / 2 - 5, HEIGHT / 2);
+         cout << "Game Over";
+         gotoxy(WIDTH / 2 - 5, HEIGHT / 2 + 1);
+         cout << "Score:" << score;
+         Sleep(2000);
+         break;
+     }
 
-        Sleep(TG);
     }
 
     return 0;
