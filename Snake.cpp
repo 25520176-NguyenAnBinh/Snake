@@ -9,6 +9,10 @@ using namespace std;
 // Kích thước cố định của màn hình chơi
 const int WIDTH = 40;
 const int HEIGHT = 20;
+const int TG = 300; // thời gian mỗi khung (ms)
+const int TG_MOI = 7000; // mồi đặc biệt tồn tại 7 giây (ms)
+const int DM_MAX = 10; // điểm tối đa mồi đặc biệt
+const int DM_MIN = 5;  // điểm tối thiểu mồi đặc biệt
 
 // TÍNH NĂNG ĐỒ HỌA: Di chuyển con trỏ vẽ đến vị trí (x, y)
 void gotoxy(int column, int line)
@@ -120,7 +124,7 @@ Point TaoThucAn(CONRAN &r, Point moiKhac = {-1, -1})
 }
 
 // Đụng tường -> game over
-bool checkWallCollision(CONRAN &r)
+bool checkWallCollision(CONRAN& r)
 {
     int x = r.A[0].x;
     int y = r.A[0].y;
@@ -136,12 +140,13 @@ bool checkWallCollision(CONRAN &r)
 // Lưu lại kỷ lục
 int loadHighScore()
 {
-    FILE *f = fopen("highscore.txt", "r");
+    FILE* f = NULL;
+    fopen_s(&f, "highscore.txt", "r");
     int score = 0;
 
     if (f != NULL)
     {
-        fscanf(f, "%d", &score);
+        fscanf_s(f, "%d", &score);
         fclose(f);
     }
 
@@ -150,11 +155,12 @@ int loadHighScore()
 // Lưu lại kỷ lục
 void saveHighScore(int score)
 {
-    FILE *f = fopen("highscore.txt", "w");
+    FILE* f = NULL;
+    fopen_s(&f, "highscore.txt", "w");
 
     if (f != NULL)
     {
-        fprintf(f, "%d", score);
+        fprintf_s(f, "%d", score);
         fclose(f);
     }
 }
@@ -284,10 +290,17 @@ int main()
             soMoiThuongDaAn++; //  Cứ ăn 1 mồi thường thì cộng biến đếm lên 1
         }
 
-        // KIỂM TRA ĂN MỒI ĐẶC BIỆT
+        // KIỂM TRA ĂN MỒI ĐẶC BIỆT (tính điểm dựa trên thời gian còn lại)
         if (coMoiDacBiet && tiepTheoX == moiDacBiet.x && tiepTheoY == moiDacBiet.y)
         {
-            score += 5; // Mồi đặc biệt cho nhiều điểm hơn
+            int thoiCon = thoiGianMoiDacBiet;
+            if (thoiCon < 0) thoiCon = 0;
+            if (thoiCon > TG_MOI) thoiCon = TG_MOI;
+            int them = DM_MIN + ((DM_MAX - DM_MIN) * thoiCon) / TG_MOI;
+            if (them < DM_MIN) them = DM_MIN;
+            if (them > DM_MAX) them = DM_MAX;
+
+            score += them; // điểm tùy theo thời gian ăn
             r.MocDai();
             daAnMoi = true;
             coMoiDacBiet = false;
@@ -300,14 +313,14 @@ int main()
         {
             moiDacBiet = TaoThucAn(r, thucAn);
             coMoiDacBiet = true;
-            thoiGianMoiDacBiet = 50;
+            thoiGianMoiDacBiet = TG_MOI; // 5 giây
 
             soMoiThuongDaAn = 0; // Đặt lại đếm về 0 để tính cho vòng 5 con tiếp theo
         }
 
         if (coMoiDacBiet)
         {
-            thoiGianMoiDacBiet--;
+            thoiGianMoiDacBiet -= TG;
             if (thoiGianMoiDacBiet <= 0)
             {
                 coMoiDacBiet = false;
@@ -320,16 +333,28 @@ int main()
 
         VeKhung(); // Vẽ khung
 
+        // Di chuyển trước khi vẽ để tránh vẽ vị trí cũ
         r.DiChuyen(Huong);
         r.Ve();
 
         gotoxy(thucAn.x, thucAn.y);
-        cout << "#"; // Vẽ mồi thường
+        cout << "@"; // Vẽ mồi thường
 
         if (coMoiDacBiet)
         {
             gotoxy(moiDacBiet.x, moiDacBiet.y);
             cout << "$"; // Vẽ mồi đặc biệt
+            // Hiển thị đồng hồ đếm ngược mồi đặc biệt (đơn vị giây) ở trên màn hình
+            int giayCon = (thoiGianMoiDacBiet + 999) / 1000;
+            if (giayCon < 0) giayCon = 0;
+            gotoxy(WIDTH - 10, 1);
+            cout << "TG:" << giayCon << "s ";
+        }
+        else
+        {
+            // Xóa vùng hiển thị đồng hồ nếu không có mồi đặc biệt
+            gotoxy(WIDTH - 10, 1);
+            cout << "     ";
         }
 
         // check thua
