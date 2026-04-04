@@ -187,7 +187,7 @@ void VeKhung()
 int main()
 {
     CONRAN r;
-    int Huong = 0;
+    int Huong = 2; // Thay đổi hướng của con rắn
     char t;
 
     int score = 0;
@@ -308,6 +308,21 @@ int main()
             gameOver = true;
 
         Sleep(300);
+// Thêm vào tính năng khi rắn đụng tường và cắn bản thân
+// Khi đụng 1 trong 2 thì sẽ xuất hiện "GAME OVER"
+    if (gameOver)
+     {
+         if (score > highScore)
+             saveHighScore(score);
+
+         gotoxy(WIDTH / 2 - 5, HEIGHT / 2);
+         cout << "Game Over";
+         gotoxy(WIDTH / 2 - 5, HEIGHT / 2 + 1);
+         cout << "Score:" << score;
+         Sleep(2000);
+         break;
+     }
+        
     }
 
     return 0;
