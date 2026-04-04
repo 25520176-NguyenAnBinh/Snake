@@ -322,7 +322,7 @@ int main()
         }
         else
         {
-            // Xóa vùng hiển thị đồng hồ nếu không có mồi đặc biệt
+            // Xóa vùng hiển thị đồng hồ nếu không có mồi đặc biệt.
             gotoxy(WIDTH - 10, 1);
             cout << "     ";
         }
