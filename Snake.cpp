@@ -34,12 +34,9 @@ public:
     CONRAN()
     {
         DoDai = 3;
-        A[0].x = 10;
-        A[0].y = 10;
-        A[1].x = 11;
-        A[1].y = 10;
-        A[2].x = 12;
-        A[2].y = 10;
+        A[0].x = 12; A[0].y = 10; // Đầu nằm ở 12
+        A[1].x = 11; A[1].y = 10; // Thân ở 11
+        A[2].x = 10; A[2].y = 10; // Đuôi ở 10
     }
     void Ve()
     {
@@ -212,10 +209,8 @@ void HuongDanChoi() {
     cout << "Game se ket thuc khi ban dam vao tuong hoac can chinh ban than.\n\n";
     cout << "Chuc ban choi game vui ve!\n\n";
 
-    cout << "Nhan ENTER de bat dau game...";
-    cin.get();      // chờ nhấn Enter
-    cin.ignore();   // clear buffer (phòng trường hợp lỗi)
-    cout << "=============================\n";
+    cout << "Nhan phim bat ky de bat dau...";
+	_getch(); // Dùng cái này thay cho cin.get() bị lỗi không ấn phím awsd được
 }
 
 // Hàm ẩn con trỏ chuột để không bị nhấp nháy trên màn hình
@@ -230,156 +225,177 @@ void NhanDinhConTro(bool showFlag) {
 
 int main()
 {
+    // Khởi tạo hệ thống
     NhanDinhConTro(false); // Ẩn con trỏ chuột
-    CONRAN r;
-    int Huong = 2; // Thay đổi hướng của rắn
-    char t;
-
-
-    int score = 0;
-    int highScore = loadHighScore();
-    bool gameOver = false;
-
-    // Khởi tạo seed cho rand()
     srand((unsigned)time(NULL));
-
-    Point thucAn = TaoThucAn(r);
-    Point moiDacBiet = { -1, -1 };
-    bool coMoiDacBiet = false;
-    int thoiGianMoiDacBiet = 0;
-    int soMoiThuongDaAn = 0; // Biến đếm số mồi thường đã ăn
-    int tocDoHienTai = 300; // Tốc độ ban đầu (ms)
-    const int TOC_DO_TOI_DA = 50;
-
+    int highScore = loadHighScore();
     HuongDanChoi();
-    cout << "Game bat dau:";
-    system("cls");
+    cout << "\n\nGame bat dau:";
 
-    // Vẽ khung ban đầu và rắn, thức ăn để người chơi chuẩn bị
-    VeKhung();
-    r.Ve();
-    gotoxy(thucAn.x, thucAn.y);
-    cout << "@";
-
-    while (!gameOver)
+	// Vòng lặp chính của trò chơi, cho phép chơi lại sau khi kết thúc
+    while (true)
     {
-        // Kiểm tra phím bấm
-        if (_kbhit())
+        system("cls");
+
+        // Khởi tạo lại thông số ván mới
+        system("cls");
+        CONRAN r;
+        int Huong = 0; // Thay đổi hướng của rắn
+        char t;
+
+
+        int score = 0;
+        bool gameOver = false;
+
+        Point thucAn = TaoThucAn(r);
+        Point moiDacBiet = { -1, -1 };
+        bool coMoiDacBiet = false;
+        int thoiGianMoiDacBiet = 0;
+        int soMoiThuongDaAn = 0; // Biến đếm số mồi thường đã ăn
+        int tocDoHienTai = 300; // Tốc độ ban đầu (ms)
+        const int TOC_DO_TOI_DA = 50;
+
+
+        // Vẽ khung ban đầu và rắn, thức ăn để người chơi chuẩn bị
+        VeKhung();
+        r.Ve();
+        gotoxy(thucAn.x, thucAn.y);
+        cout << "@";
+
+        while (!gameOver)
         {
-            t = _getch();
-            int newHuong = Huong;
-            if (t == 'a') newHuong = 2; // trai
-            if (t == 'w') newHuong = 3; // len
-            if (t == 'd') newHuong = 0; // phai
-            if (t == 's') newHuong = 1; // xuong
+            // Kiểm tra phím bấm
+            if (_kbhit())
+            {
+                t = _getch();
+                int newHuong = Huong;
+                if (t == 'a') newHuong = 2; // trai
+                if (t == 'w') newHuong = 3; // len
+                if (t == 'd') newHuong = 0; // phai
+                if (t == 's') newHuong = 1; // xuong
 
-            // Chặn quay xe 180 độ
-            bool opposite = (Huong == 0 && newHuong == 2) || (Huong == 2 && newHuong == 0) ||
-                (Huong == 1 && newHuong == 3) || (Huong == 3 && newHuong == 1);
-            if (!opposite) Huong = newHuong;
-        }
-
-        // Tính toán vị trí dự kiến
-        int tiepTheoX = r.A[0].x;
-        int tiepTheoY = r.A[0].y;
-        if (Huong == 0) tiepTheoX++;
-        if (Huong == 1) tiepTheoY++;
-        if (Huong == 2) tiepTheoX--;
-        if (Huong == 3) tiepTheoY--;
-
-        // Xóa cái đuôi cũ trước
-        r.XoaDuoi();
-
-        // Xử lý ăn mồi thường
-        if (tiepTheoX == thucAn.x && tiepTheoY == thucAn.y)
-        {
-            score += 1;
-            r.MocDai();
-
-            if (tocDoHienTai > TOC_DO_TOI_DA) {
-                tocDoHienTai -= 5;
+                // Chặn quay xe 180 độ
+                bool opposite = (Huong == 0 && newHuong == 2) || (Huong == 2 && newHuong == 0) ||
+                    (Huong == 1 && newHuong == 3) || (Huong == 3 && newHuong == 1);
+                if (!opposite) Huong = newHuong;
             }
 
-            thucAn = TaoThucAn(r, moiDacBiet);
-            soMoiThuongDaAn++;
-            gotoxy(thucAn.x, thucAn.y);
-            cout << "@";
-        }
+            // Tính toán vị trí dự kiến
+            int tiepTheoX = r.A[0].x;
+            int tiepTheoY = r.A[0].y;
+            if (Huong == 0) tiepTheoX++;
+            if (Huong == 1) tiepTheoY++;
+            if (Huong == 2) tiepTheoX--;
+            if (Huong == 3) tiepTheoY--;
 
-        // Xử lý ăn mồi đặc biệt
-        if (coMoiDacBiet && tiepTheoX == moiDacBiet.x && tiepTheoY == moiDacBiet.y)
-        {
-            int them = DM_MIN + ((DM_MAX - DM_MIN) * thoiGianMoiDacBiet) / TG_MOI;
-            score += (them < DM_MIN) ? DM_MIN : them;
-            r.MocDai();
-            coMoiDacBiet = false;
-            // Xóa ký tự mồi đặc biệt cũ
-            gotoxy(moiDacBiet.x, moiDacBiet.y);
-            cout << " ";
-        }
+            // Xóa cái đuôi cũ trước
+            r.XoaDuoi();
 
-        // Cập nhật tọa độ và vẽ thân rắn mới
-        r.DiChuyen(Huong);
-        r.Ve();
-
-        // Logic sinh mồi đặc biệt
-        if (!coMoiDacBiet && soMoiThuongDaAn >= 5)
-        {
-            moiDacBiet = TaoThucAn(r, thucAn);
-            coMoiDacBiet = true;
-            thoiGianMoiDacBiet = TG_MOI;
-            soMoiThuongDaAn = 0;
-            gotoxy(moiDacBiet.x, moiDacBiet.y);
-            cout << "$";
-        }
-
-        if (coMoiDacBiet)
-        {
-            thoiGianMoiDacBiet -= TG;
-            if (thoiGianMoiDacBiet <= 0)
+            // Xử lý ăn mồi thường
+            if (tiepTheoX == thucAn.x && tiepTheoY == thucAn.y)
             {
+                score += 1;
+                r.MocDai();
+
+                if (tocDoHienTai > TOC_DO_TOI_DA) {
+                    tocDoHienTai -= 5;
+                }
+
+                thucAn = TaoThucAn(r, moiDacBiet);
+                soMoiThuongDaAn++;
+                gotoxy(thucAn.x, thucAn.y);
+                cout << "@";
+            }
+
+            // Xử lý ăn mồi đặc biệt
+            if (coMoiDacBiet && tiepTheoX == moiDacBiet.x && tiepTheoY == moiDacBiet.y)
+            {
+                int them = DM_MIN + ((DM_MAX - DM_MIN) * thoiGianMoiDacBiet) / TG_MOI;
+                score += (them < DM_MIN) ? DM_MIN : them;
+                r.MocDai();
                 coMoiDacBiet = false;
+                // Xóa ký tự mồi đặc biệt cũ
                 gotoxy(moiDacBiet.x, moiDacBiet.y);
                 cout << " ";
             }
+
+            // Cập nhật tọa độ và vẽ thân rắn mới
+            r.DiChuyen(Huong);
+            r.Ve();
+
+            // Logic sinh mồi đặc biệt
+            if (!coMoiDacBiet && soMoiThuongDaAn >= 5)
+            {
+                moiDacBiet = TaoThucAn(r, thucAn);
+                coMoiDacBiet = true;
+                thoiGianMoiDacBiet = TG_MOI;
+                soMoiThuongDaAn = 0;
+                gotoxy(moiDacBiet.x, moiDacBiet.y);
+                cout << "$";
+            }
+
+            if (coMoiDacBiet)
+            {
+                thoiGianMoiDacBiet -= TG;
+                if (thoiGianMoiDacBiet <= 0)
+                {
+                    coMoiDacBiet = false;
+                    gotoxy(moiDacBiet.x, moiDacBiet.y);
+                    cout << " ";
+                }
+            }
+
+            // Score và High Score ở dưới cùng
+            gotoxy(0, HEIGHT);
+            cout << "Score: " << score << "  |  High Score: " << highScore << "    ";
+
+			// Timer mồi đặc biệt
+            gotoxy(0, HEIGHT + 1);
+            if (coMoiDacBiet) {
+                int giayCon = (thoiGianMoiDacBiet + 999) / 1000;
+                cout << "BONUS: " << (giayCon > 0 ? giayCon : 0) << "s  ";
+            }
+            else {
+                cout << "                "; // Xóa dòng timer khi hết mồi
+            }
+
+            // check thua
+            if (checkWallCollision(r))
+                gameOver = true;
+            if (r.DauChamThan())
+                gameOver = true;
+            Sleep(tocDoHienTai);
         }
 
-		// Score và High Score ở dưới cùng
-        gotoxy(0, HEIGHT);
-        cout << "Score: " << score << "  |  High Score: " << highScore << "    ";
-
-        gotoxy(0, HEIGHT + 1);
-        if (coMoiDacBiet) {
-            int giayCon = (thoiGianMoiDacBiet + 999) / 1000;
-            cout << "BONUS: " << (giayCon > 0 ? giayCon : 0) << "s  ";
-        }
-        else {
-            cout << "                "; // Xóa dòng timer khi hết mồi
+        // 3. MÀN HÌNH GAME OVER & LỰA CHỌN THOÁT
+        if (score > highScore) {
+            highScore = score;
+            saveHighScore(score);
         }
 
-        // check thua
-        if (checkWallCollision(r))
-            gameOver = true;
-        if (r.DauChamThan())
-            gameOver = true;
-        Sleep(300);
+        gotoxy(WIDTH / 2 - 5, HEIGHT / 2);
+        cout << "  GAME OVER!  ";
+        gotoxy(WIDTH / 2 - 7, HEIGHT / 2 + 1);
+        cout << "Final Score: " << score;
 
-        // làm cho răn đụng tường và đụng thân
-        // Khi đụng sẽ xuất hiện "GAME OVER"
-        if (gameOver)
-        {
-            if (score > highScore)
-                saveHighScore(score);
+        gotoxy(WIDTH / 2 - 12, HEIGHT / 2 + 3);
+        cout << "Nhan [R] de choi lai";
+        gotoxy(WIDTH / 2 - 12, HEIGHT / 2 + 4);
+        cout << "Nhan [ESC] de thoat game";
 
-            gotoxy(WIDTH / 2 - 5, HEIGHT / 2);
-            cout << "Game Over";
-            gotoxy(WIDTH / 2 - 5, HEIGHT / 2 + 1);
-            cout << "Score:" << score;
-            Sleep(2000);
-            break;
-        }
-
-    }
-
+        // Vòng lặp chờ người chơi bấm phím hợp lệ
+        while (true) {
+            if (_kbhit()) {
+                char choice = _getch();
+                if (choice == 'r' || choice == 'R') {
+                    break; // Thoát vòng lặp chờ, quay lại vòng lặp chơi game (while true)
+                }
+                if (choice == 27) { // 27 là mã ASCII của phím ESC
+                    NhanDinhConTro(true);
+                    return 0; // Kết thúc hàm main, thoát chương trình hoàn toàn
+                }
+            }
+        }        
+	}
     return 0;
 }
