@@ -168,7 +168,6 @@ void saveHighScore(int score)
 // Vẽ khung cho trò chơi
 void VeKhung()
 {
-
     // viền trên + dưới
     for (int x = 0; x < WIDTH; x++)
     {
@@ -284,7 +283,7 @@ int main()
         {
             moiDacBiet = TaoThucAn(r, thucAn);
             coMoiDacBiet = true;
-            thoiGianMoiDacBiet = TG_MOI; // 5 giây
+            thoiGianMoiDacBiet = TG_MOI; // 7 giây
 
             soMoiThuongDaAn = 0; // Đặt lại đếm về 0 để tính cho vòng 5 con tiếp theo
         }
@@ -323,11 +322,7 @@ int main()
         }
         else
         {
-<<<<<<< HEAD
-            // Xóa vùng hiển thị đồng hồ nếu không có mồi đặc biệt..
-=======
             // Xóa vùng hiển thị đồng hồ nếu không có mồi đặc biệt
->>>>>>> 30c8154bdf0d57f4759c51e5799ec56f1d54b86b
             gotoxy(WIDTH - 10, 1);
             cout << "     ";
         }
@@ -356,4 +351,3 @@ int main()
 
     return 0;
 }
-
