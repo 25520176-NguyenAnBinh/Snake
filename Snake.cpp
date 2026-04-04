@@ -152,6 +152,7 @@ void saveHighScore(int score) {
 
 // Vẽ khung cho trò chơi
 void VeKhung() {
+    
     // viền trên + dưới
     for (int x = 0; x < WIDTH; x++) {
         gotoxy(x, 0);
