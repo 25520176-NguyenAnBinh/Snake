@@ -298,7 +298,7 @@ int main()
                 r.MocDai();
 
                 if (tocDoHienTai > TOC_DO_TOI_DA) {
-                    tocDoHienTai -= 5;
+                    tocDoHienTai -= 10;
                 }
 
                 thucAn = TaoThucAn(r, moiDacBiet);
@@ -336,7 +336,7 @@ int main()
 
             if (coMoiDacBiet)
             {
-                thoiGianMoiDacBiet -= TG;
+                thoiGianMoiDacBiet -= tocDoHienTai;
                 if (thoiGianMoiDacBiet <= 0)
                 {
                     coMoiDacBiet = false;
