@@ -122,7 +122,7 @@ bool checkWallCollision(CONRAN &r) {
     int x = r.A[0].x;
     int y = r.A[0].y;
 
-    if (x < 0 || x >= WIDTH || y < 0 || y >= HEIGHT) {
+    if (x < 0 || x >= WIDTH - 1 || y <= 0 || y >= HEIGHT - 1) {
         return true; // thua
     }
     return false;
@@ -147,6 +147,27 @@ void saveHighScore(int score) {
     if (f != NULL) {
         fprintf(f, "%d", score);
         fclose(f);
+    }
+}
+
+// Vẽ khung cho trò chơi
+void VeKhung() {
+    // viền trên + dưới
+    for (int x = 0; x < WIDTH; x++) {
+        gotoxy(x, 0);
+        cout << "#";
+
+        gotoxy(x, HEIGHT - 1);
+        cout << "#";
+    }
+
+    // viền trái + phải
+    for (int y = 0; y < HEIGHT; y++) {
+        gotoxy(0, y);
+        cout << "#";
+
+        gotoxy(WIDTH - 1, y);
+        cout << "#";
     }
 }
 
@@ -176,6 +197,9 @@ int main()
                 Huong = 1;
         }
         system("cls");
+
+        VeKhung(); //Vẽ khung
+
         r.Ve();
         r.DiChuyen(Huong);
 
